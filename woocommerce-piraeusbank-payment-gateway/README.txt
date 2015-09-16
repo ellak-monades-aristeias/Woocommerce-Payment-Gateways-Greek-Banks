@@ -1,4 +1,4 @@
-=== WooCommerce Peiraeus Bank Greece Payment Gateway ===
+=== WooCommerce Piraeus Bank Greece Payment Gateway ===
 Contributors: mpbm23, emspacegr
 Tags: ecommerce, woocommerce, payment gateway
 Tested up to: 4.3
@@ -7,10 +7,10 @@ Stable tag: 1.0.0
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
-Adds Peiraeus Bank paycenter as a payment Gateway
+Adds Piraeus Bank paycenter as a payment Gateway
 
 == Description ==
-Adds Peiraeus Bank paycenter as a payment Gateway. A contract between you and the Bank must be previously signed.
+Adds Piraeus Bank paycenter as a payment Gateway. A contract between you and the Bank must be previously signed.
 
 Source code is available at [Github](htps://github.com/ellak-monades-aristeias/Woocommerce-Payment-Gateways-Greek-Banks)
 
