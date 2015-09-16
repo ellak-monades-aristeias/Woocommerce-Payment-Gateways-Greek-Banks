@@ -1,9 +1,9 @@
 <?php
 
 /*
-  Plugin Name: Peiraus Bank WooCommerce Payment Gateway
+  Plugin Name: Pireaus Bank WooCommerce Payment Gateway
   Plugin URI: http://emspace.gr
-  Description: Peiraus Bank Payment Gateway allows you to accept payment through various channels such as Maestro, Mastercard, AMex cards, Diners  and Visa cards On your Woocommerce Powered Site.
+  Description: Piraeus Bank Payment Gateway allows you to accept payment through various channels such as Maestro, Mastercard, AMex cards, Diners  and Visa cards On your Woocommerce Powered Site.
   Version: 1.0.0
   Author: emspace.gr
   Author URI: http://emspace.gr
