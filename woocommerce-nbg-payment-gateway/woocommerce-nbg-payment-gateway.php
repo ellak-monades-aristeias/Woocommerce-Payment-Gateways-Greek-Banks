@@ -14,7 +14,7 @@ if (!defined('ABSPATH'))
     exit;
 
 add_action('plugins_loaded', 'woocommerce_nbg_init', 0);
-
+require_once( 'simplexml.php' );
 function woocommerce_nbg_init() {
 
     if (!class_exists('WC_Payment_Gateway'))
@@ -40,6 +40,18 @@ function woocommerce_nbg_init() {
 			
 			// Load the form fields.
 			$this->init_form_fields();
+		    
+            //dhmioyrgia vashs
+
+            global $wpdb;
+
+            if ($wpdb->get_var("SHOW TABLES LIKE '" . $wpdb->prefix . "nbg_transactions'") === $wpdb->prefix . 'nbg_transactions') {
+                // The database table exist
+            } else {
+                // Table does not exist
+                $query = 'CREATE TABLE IF NOT EXISTS ' . $wpdb->prefix . 'nbg_transactions (id int(11) unsigned NOT NULL AUTO_INCREMENT, reference varchar(100) not null, orderid varchar(100) not null , timestamp datetime default null, PRIMARY KEY (id))';
+                $wpdb->query($query);
+            }
 			
 
             // Load the settings.
@@ -49,15 +61,15 @@ function woocommerce_nbg_init() {
             // Define user set variables
             $this->title = $this->get_option('title');
             $this->description = $this->get_option('description');
-            $this->nbg_PayMerchantId = $this->get_option('nbg_PayMerchantId');
+         /*   $this->nbg_PayMerchantId = $this->get_option('nbg_PayMerchantId');
             $this->nbg_AcquirerId = $this->get_option('nbg_AcquirerId');
-            $this->nbg_PosId = $this->get_option('nbg_PosId');			
+            $this->nbg_PosId = $this->get_option('nbg_PosId');		*/	
 			$this->nbg_Username = $this->get_option('nbg_Username');
             $this->nbg_Password = $this->get_option('nbg_Password');
 			
-		//	$this->customerMessage= $this->get_option('customerMessage');
+		    $this->nbg_description= $this->get_option('nbg_description');
             $this->mode = $this->get_option('mode');			
-            $this->allowedInstallments= $this->get_option('installments');
+            $this->nbg_installments= $this->get_option('nbg_installments');
             //Actions
             add_action('woocommerce_receipt_nbg_gateway', array($this, 'receipt_page'));
             add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
@@ -104,7 +116,7 @@ function woocommerce_nbg_init() {
                     'type' => 'textarea',
                     'description' => __('This controls the description which the user sees during checkout.', 'woocommerce-nbg-payment-gateway'),
                     'default' => __('Pay Via National Bank Greece: Accepts  Mastercard, Visa cards and etc.', 'woocommerce-nbg-payment-gateway')
-                ),
+                ),/*
                 'nbg_PayMerchantId' => array(
                     'title' => __('NBG Merchant ID', 'woocommerce-nbg-payment-gateway'),
                     'type' => 'text',
@@ -119,13 +131,7 @@ function woocommerce_nbg_init() {
                     'default' => '',
                     'desc_tip' => true
                 ),
-                'nbg_PosId' => array(
-                    'title' => __('NBG POS ID', 'woocommerce-nbg-payment-gateway'),
-                    'type' => 'text',
-                    'description' => __('Enter your NBG  POS ID', 'woocommerce-nbg-payment-gateway'),
-                    'default' => '',
-                    'desc_tip' => true
-                ),'nbg_Username' => array(
+                */'nbg_Username' => array(
                     'title' => __('NBG  Username', 'woocommerce-nbg-payment-gateway'),
                     'type' => 'text',
                     'description' => __('Enter your NBG Username', 'woocommerce-nbg-payment-gateway'),
@@ -135,6 +141,12 @@ function woocommerce_nbg_init() {
                     'title' => __('NBG  Password', 'woocommerce-nbg-payment-gateway'),
                     'type' => 'text',
                     'description' => __('Enter your NBG Password', 'woocommerce-nbg-payment-gateway'),
+                    'default' => '',
+                    'desc_tip' => true
+                ),'nbg_description' => array(
+                    'title' => __('NBG Transaction Description', 'woocommerce-nbg-payment-gateway'),
+                    'type' => 'text',
+                    'description' => __('Add a description to the transactions', 'woocommerce-nbg-payment-gateway'),
                     'default' => '',
                     'desc_tip' => true
                 ), 'mode' => array(
@@ -150,7 +162,7 @@ function woocommerce_nbg_init() {
                     'options' => $this->nbg_get_pages('Select Page'),
                     'description' => __('URL of success page', 'woocommerce-nbg-payment-gateway')
                 )                ,
-                'installments' => array(
+                'nbg_installments' => array(
                     'title' => __('Max Installments', 'woocommerce-nbg-payment-gateway'),
                     'type' => 'select',
                     'options' => $this->nbg_get_installments('Select Installments'),
@@ -193,14 +205,108 @@ function woocommerce_nbg_init() {
 
    
         function generate_nbg_form($order_id) {
-            global $woocommerce;
-
+			global $wpdb;
             $order = new WC_Order($order_id);
+			
+			//make XML
+			
+			$xml = new SimpleXMLExtended('<?xml version="1.0" encoding="utf-8"?><Request version="2"/>');
+			
+			$authentication =   $xml->addChild('Authentication');			
+			$authentication->addChild('password', $this->nbg_Password);
+            $authentication->addChild('client', $this->nbg_Username);			 
+            
+			$transaction = $xml->addChild('Transaction');	
+				$TxnDetails=$transaction->addChild('TxnDetails');
+					$TxnDetails->addChild('merchantreference',$order_id);
+					$TxnDetails->addChild('capturemethod','ecomm');	
+					$amount = $TxnDetails->addChild('amount',$order->get_total());	
+					$amount->addAttribute('currency','EUR');
+					$ThreeDSecure=$TxnDetails->addChild('ThreeDSecure');	
+						$Browser=$ThreeDSecure->addChild('Browser');
+							$Browser->addChild('device_category','0');
+							$Browser->addChild('accept_headers','*/*');
+							$Browser->addChild('user_agent',$_SERVER['HTTP_USER_AGENT']);               
+						$ThreeDSecure->addChild('purchase_datetime',date('Ymd h:i:s'));
+						$ThreeDSecure->addChild('merchant_url',get_site_url());	
+						$ThreeDSecure->addChild('purchase_desc',$this->nbg_description);
+						$ThreeDSecure->addChild('verify','yes');
+					
+				$HpsTxn =$transaction->addChild('HpsTxn');
+					$HpsTxn->addChild('method', 'setup_full');
+					$return_url_str= get_site_url()."?wc-api=WC_NBG_gateway".htmlspecialchars('&')."nbg=success&amp;MerchantReference=".$order_id;
+					$HpsTxn->addChild('return_url',$return_url_str);
+					$HpsTxn->addChild('expiry_url', get_site_url().'?wc-api=WC_NBG_gateway'.htmlspecialchars('&').'nbg=cancel');
+					$HpsTxn->addChild('page_set_id', '19');
+					$DynamicData = $HpsTxn->addChild('DynamicData');
+						$DynamicData->dyn_data_4=NULL;
+						$DynamicData->dyn_data_4->addCData($this->nbg_installments);
+						
+				$CardTxn=$transaction->addChild('CardTxn');
+					$CardTxn->addChild('method', 'auth');
+			
+	/*	to delete
+	echo '<pre>';
+			print_r(htmlentities($xml->asXML()));
+			echo '</pre>';
+		*/
+		
+	//make XML  curl call 
+	$ch = curl_init ('https://testserver.datacash.com/Transaction');
+    curl_setopt($ch, CURLOPT_POST,1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $xml->asXML()); 
+    curl_setopt($ch, CURLOPT_HTTPHEADER, Array("Content-Type: text/xml"));
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_NOPROGRESS, 0);
+	
+    $result = curl_exec ($ch); // result will contain XML reply 
+    curl_close ($ch);
+    if ( $result == false )
+	{
+          return __('Could not connect to NBG server, please contact the administrator ', 'woocommerce-nbg-payment-gateway') ;
+	} 
+	//to delete
+	/*echo '<pre>';
+			print_r(htmlentities($result));
+	echo '</pre>';
+	$result = "<?xml version='1.0' encoding='UTF-8'?>
+<Response version='2'>
+  <HpsTxn>
+    <hps_url>https://accreditation.datacash.com/hps-nbgs2a_i/</hps_url>
+    <session_id>b2987805-5f69-447a-acbf-54fdba20b6cf</session_id>
+  </HpsTxn>
+  <datacash_reference>3200900010031597</datacash_reference>
+  <merchantreference>NBGTEST000119</merchantreference>
+  <mode>LIVE</mode>
+  <reason>ACCEPTED</reason>
+  <status>1</status>
+  <time>1396418722</time>
+</Response>";*/
+	
+	//receive response and parse xml
+	$response = simplexml_load_string($result);
+/*	echo '<pre>';
+	print_r($response);
+	echo '</pre>';
+	*///echo $response->status;
 	
 
-                    wc_enqueue_js('
+	if ($response->status !=1)
+	{
+		//An error occurred
+		return __('An error occurred, please contact the administrator ', 'woocommerce-nbg-payment-gateway') ;
+	}else
+	{	
+		//If response success save data in DB and redirect
+		$wpdb->insert($wpdb->prefix . 'nbg_transactions', array('reference' => $response->datacash_reference, 'orderid' => $order_id, 'timestamp' => current_time('mysql', 1)));
+		
+		
+		$requesturl = $response->HpsTxn->hps_url.'?HPS_SessionID='.$response->HpsTxn->session_id;
+		
+		
+		          /* */  wc_enqueue_js('
 				$.blockUI({
-						message: "' . esc_js(__('Thank you for your order. We are now redirecting you to Piraeus Bank to make payment.', 'woocommerce-nbg-payment-gateway')) . '",
+						message: "' . esc_js(__('Thank you for your order. We are now redirecting you to National Bank Greece to make payment.', 'woocommerce-nbg-payment-gateway')) . '",
 						baseZ: 99999,
 						overlayCSS:
 						{
@@ -220,7 +326,8 @@ function woocommerce_nbg_init() {
 					});
 				jQuery("#submit_nbg_payment_form").click();
 			');
-                    return '<form action="' . $requesturl . '/web/checkout?ref=' . $transId . '" method="post" id="nbg_payment_form" target="_top">
+	
+		 return '<form action="' . $requesturl . '" method="post" id="nbg_payment_form" target="_top">
 				
 					<!-- Button Fallback -->
 					<div class="payment_buttons">
@@ -230,8 +337,8 @@ function woocommerce_nbg_init() {
 						jQuery(".payment_buttons").hide();
 					</script>
 				</form>';
-               
-        }
+	} 
+}
 
         /**
          * Process the payment and return the result
@@ -262,26 +369,186 @@ function woocommerce_nbg_init() {
 
             global $woocommerce;
             global $wpdb;
-		 if (isset($_GET['nbg'])&&($_GET['nbg']=='success')) {	
-		 echo "success";
 		
+			
+		 if (isset($_GET['nbg'])&&($_GET['nbg']==='success')) {	
+			
+			 $orderid= $_GET['MerchantReference'];
+			 
+			 
+			 //query DB
+			 
+				$ttquery = 'SELECT reference
+				FROM `' . $wpdb->prefix . 'nbg_transactions`
+				WHERE `orderid` = ' . $orderid . '	;';
+				$ref = $wpdb->get_results($ttquery);
+			 
+			 //create XML query 
+			 
+			$xml = new SimpleXMLExtended('<?xml version="1.0" encoding="utf-8"?><Request version="2"/>');
+				
+				$authentication =   $xml->addChild('Authentication');			
+				$authentication->addChild('password', $this->nbg_Password);
+				$authentication->addChild('client', $this->nbg_Username);			 
+				
+				$transaction = $xml->addChild('Transaction');	
+					$HistoricTxn=$transaction->addChild('HistoricTxn');
+						$HistoricTxn->addChild('reference',$ref['0']->reference);
+						$HistoricTxn->addChild('method', 'query');
+						
+				echo '<pre>';
+				print_r(htmlentities($xml->asXML()));
+				echo '</pre>';
+						
+						
+			 // make CURL request		 
+			$ch = curl_init ('https://testserver.datacash.com/Transaction');
+			curl_setopt($ch, CURLOPT_POST,1);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, $xml->asXML()); 
+			curl_setopt($ch, CURLOPT_HTTPHEADER, Array("Content-Type: text/xml"));
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+			curl_setopt($ch, CURLOPT_NOPROGRESS, 0);
+			
+			$result = curl_exec ($ch); // result will contain XML reply 
+			curl_close ($ch);
+			if ( $result == false )
+			{
+				  return __('Could not connect to NBG server, please contact the administrator ', 'woocommerce-nbg-payment-gateway') ;
+			} 
+		/*	 to delete
+			$result = '<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+  <HpsTxn>
+    <AuthAttempts>
+      <Attempt>
+        <datacash_reference>3900900010031589</datacash_reference>
+        <dc_response>1</dc_response>
+        <reason>ACCEPTED</reason>
+      </Attempt>
+    </AuthAttempts><datacash_reference>3900900010031598</datacash_reference> 
+  </HpsTxn>
+  <datacash_reference>3200900010031597</datacash_reference>
+  <information>You have queried a Full-HPS transaction, where the payment was successfully collected</information>
+  <merchantreference>NBGTEST000119</merchantreference>
+  <mode>LIVE</mode>
+  <reason>ACCEPTED</reason>
+  <status>1</status>
+  <time>1396419312</time>
+</Response>';*/
+
+			//Response			
+			$response = simplexml_load_string($result);
 		
+/*	 to delete	echo '<pre>';
+			print_r($response);
+			echo '</pre>';
+	*/		
+			$order = new WC_Order($orderid);
+			
+			if ($response->status ==1)
+			{
 		
-		 
-		 }
-		 if(isset($_GET['nbg'])&&($_GET['nbg']=='fail')) {	
-		  echo "fail";
-		
-		  
-		 }
-		 if(isset($_GET['nbg'])&& ($_GET['nbg']=='cancel')) {	
-		//  echo "cancel";
-		  
-		  $checkout_url = $woocommerce->cart->get_checkout_url();
-		  wp_redirect($checkout_url);
-           exit;
-		  
-		 }
+				if(strcmp($response->reason,'ACCEPTED')==0)
+				{
+				
+				//verified - successful payment
+				//complete order			
+								if ($order->status == 'processing') {
+
+									$order->add_order_note(__('Payment Via NBG<br />Transaction ID: ', 'woocommerce-nbg-payment-gateway') . $trans_id);
+
+									//Add customer order note
+									$order->add_order_note(__('Payment Received.<br />Your order is currently being processed.<br />We will be shipping your order to you soon.<br />NBG Transaction ID: ', 'woocommerce-nbg-payment-gateway') . $trans_id, 1);
+
+									// Reduce stock levels
+									$order->reduce_order_stock();
+
+									// Empty cart
+									WC()->cart->empty_cart();
+
+									$message = __('Thank you for shopping with us.<br />Your transaction was successful, payment was received.<br />Your order is currently being processed.', 'woocommerce-nbg-payment-gateway');
+									$message_type = 'success';
+								} else {
+
+									if ($order->has_downloadable_item()) {
+
+										//Update order status
+										$order->update_status('completed', __('Payment received, your order is now complete.', 'woocommerce-nbg-payment-gateway'));
+
+										//Add admin order note
+										$order->add_order_note(__('Payment Via NBG Payment Gateway<br />Transaction ID: ', 'woocommerce-nbg-payment-gateway') . $trans_id);
+
+										//Add customer order note
+										$order->add_order_note(__('Payment Received.<br />Your order is now complete.<br />NBG Transaction ID: ', 'woocommerce-nbg-payment-gateway') . $trans_id, 1);
+
+										$message = __('Thank you for shopping with us.<br />Your transaction was successful, payment was received.<br />Your order is now complete.', 'woocommerce-nbg-payment-gateway');
+										$message_type = 'success';
+									} else {
+
+										//Update order status
+										$order->update_status('processing', __('Payment received, your order is currently being processed.', 'woocommerce-nbg-payment-gateway'));
+
+										//Add admin order note
+										$order->add_order_note(__('Payment Via NBG Payment Gateway<br />Transaction ID: ', 'woocommerce-nbg-payment-gateway') . $trans_id);
+
+										//Add customer order note
+										$order->add_order_note(__('Payment Received.<br />Your order is currently being processed.<br />We will be shipping your order to you soon.<br />Vivapay Transaction ID: ', 'woocommerce-nbg-payment-gateway') . $trans_id, 1);
+
+										$message = __('Thank you for shopping with us.<br />Your transaction was successful, payment was received.<br />Your order is currently being processed.', 'woocommerce-nbg-payment-gateway');
+										$message_type = 'success';
+									}
+
+									$nbg_message = array(
+										'message' => $message,
+										'message_type' => $message_type
+									);
+
+									update_post_meta($order_id, '_nbg_message', $nbg_message);
+									// Reduce stock levels
+									$order->reduce_order_stock();
+
+									// Empty cart
+									WC()->cart->empty_cart();
+								} /**/
+				
+				}else
+				{//payment has failed - retry
+					$message = __('Thank you for shopping with us. <br />However, the transaction wasn\'t successful, payment wasn\'t received.', 'woocommerce-nbg-payment-gateway');
+						$message_type = 'error';
+						$nbg_message = array(
+							'message' => $message,
+							'message_type' => $message_type
+						);
+						update_post_meta($order_id, '_nbg_message', $pb_message);
+
+						//Update the order status
+						$order->update_status('failed', '');
+						$checkout_url = $woocommerce->cart->get_checkout_url();
+						wp_redirect($checkout_url);
+						exit;
+				}
+				
+			
+			}
+			else
+			{//an error occurred
+						$message = __('Thank you for shopping with us. <br />However, an error occurred and the transaction wasn\'t successful, payment wasn\'t received.', 'woocommerce-nbg-payment-gateway');
+						$message_type = 'error';
+						$nbg_message = array(
+							'message' => $message,
+							'message_type' => $message_type
+						);
+						update_post_meta($order_id, '_nbg_message', $pb_message);
+
+						//Update the order status
+						$order->update_status('failed', '');
+						$checkout_url = $woocommerce->cart->get_checkout_url();
+						wp_redirect($checkout_url);
+						exit;
+			
+			
+			}
+
 				if ($this->redirect_page_id=="-1"){				
 				$redirect_url = $this->get_return_url( $order );	
 				}else	
@@ -292,8 +559,22 @@ function woocommerce_nbg_init() {
 				}
 				wp_redirect($redirect_url);
                
-                exit;
+       
 
+	
+	
+			exit;			
+
+		
+		 }		
+		 if(isset($_GET['nbg'])&& ($_GET['nbg']==='cancel')) {	
+		
+		  $checkout_url = $woocommerce->cart->get_checkout_url();
+		  wp_redirect($checkout_url);
+          exit;
+		  
+		 }
+			
         }
 
     }
