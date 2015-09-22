@@ -49,7 +49,7 @@ function woocommerce_nbg_init() {
                 // The database table exist
             } else {
                 // Table does not exist
-                $query = 'CREATE TABLE IF NOT EXISTS ' . $wpdb->prefix . 'nbg_transactions (id int(11) unsigned NOT NULL AUTO_INCREMENT, reference varchar(100) not null, orderid varchar(100) not null , timestamp datetime default null, PRIMARY KEY (id))';
+                $query = 'CREATE TABLE IF NOT EXISTS ' . $wpdb->prefix . 'nbg_transactions (id int(11) unsigned NOT NULL AUTO_INCREMENT,merchantreference varchar(30) not null, reference varchar(100) not null, orderid varchar(100) not null , timestamp datetime default null, PRIMARY KEY (id))';
                 $wpdb->query($query);
             }
 			
@@ -61,9 +61,6 @@ function woocommerce_nbg_init() {
             // Define user set variables
             $this->title = $this->get_option('title');
             $this->description = $this->get_option('description');
-         /*   $this->nbg_PayMerchantId = $this->get_option('nbg_PayMerchantId');
-            $this->nbg_AcquirerId = $this->get_option('nbg_AcquirerId');
-            $this->nbg_PosId = $this->get_option('nbg_PosId');		*/	
 			$this->nbg_Username = $this->get_option('nbg_Username');
             $this->nbg_Password = $this->get_option('nbg_Password');
 			
@@ -116,22 +113,7 @@ function woocommerce_nbg_init() {
                     'type' => 'textarea',
                     'description' => __('This controls the description which the user sees during checkout.', 'woocommerce-nbg-payment-gateway'),
                     'default' => __('Pay Via National Bank Greece: Accepts  Mastercard, Visa cards and etc.', 'woocommerce-nbg-payment-gateway')
-                ),/*
-                'nbg_PayMerchantId' => array(
-                    'title' => __('NBG Merchant ID', 'woocommerce-nbg-payment-gateway'),
-                    'type' => 'text',
-                    'description' => __('Enter Your NBG Merchant ID', 'woocommerce-nbg-payment-gateway'),
-                    'default' => '',
-                    'desc_tip' => true
-                ),
-                'nbg_AcquirerId' => array(
-                    'title' => __('NBG Acquirer ID', 'woocommerce-nbg-payment-gateway'),
-                    'type' => 'text',
-                    'description' => __('Enter Your Piraeus Bank Acquirer ID', 'woocommerce-nbg-payment-gateway'),
-                    'default' => '',
-                    'desc_tip' => true
-                ),
-                */'nbg_Username' => array(
+                ),'nbg_Username' => array(
                     'title' => __('NBG  Username', 'woocommerce-nbg-payment-gateway'),
                     'type' => 'text',
                     'description' => __('Enter your NBG Username', 'woocommerce-nbg-payment-gateway'),
@@ -143,6 +125,12 @@ function woocommerce_nbg_init() {
                     'description' => __('Enter your NBG Password', 'woocommerce-nbg-payment-gateway'),
                     'default' => '',
                     'desc_tip' => true
+                ), 'nbg_auth' => array(
+                    'title' => __('Pre-Authorize', 'woocommerce-nbg-payment-gateway'),
+                    'type' => 'checkbox',
+                    'label' => __('Default payment method is Authorize, enable for Pre-Authorized payments.', 'woocommerce-nbg-payment-gateway'),
+                    'default' => 'yes',
+                    'description' => __('This controls  the payment mode as TEST or LIVE.', 'woocommerce-nbg-payment-gateway')
                 ),'nbg_description' => array(
                     'title' => __('NBG Transaction Description', 'woocommerce-nbg-payment-gateway'),
                     'type' => 'text',
@@ -207,6 +195,47 @@ function woocommerce_nbg_init() {
         function generate_nbg_form($order_id) {
 			global $wpdb;
             $order = new WC_Order($order_id);
+			$merchantreference = substr(sha1(rand()), 0, 30);
+			
+			if ($this->mode == "yes") 
+			{//test mode
+			$post_url = 'https://accreditation.datacash.com/Transaction/acq_a';
+			$page_set_id = '44'	;
+			/*
+			HPS - HCC  pagesets  - without Installments  (TEST)
+			41-NBG-HPS-WithoutInstallmentGRK
+			42-NBG-HPS-WithoutInstallmentENG			 
+
+			HPS pagesets  with Installments (TEST)
+			43-NBG-HPS-WithInstallmentENG
+			44-NBG-HPS-WithInstallmentGRK
+			*/		
+			
+			}
+			 else
+			 { //live mode
+			 $post_url ='https://mars.transaction.datacash.com/Transaction';			 
+			 $page_set_id='1438';
+			 /*
+			 HPS-HCC pagesets  - without Installments (LIVE)
+			 1300-NBG_Without_Installment_Greek
+			 1301-NBG_Without_Installment_Eng			 
+
+			 HPS  pagesets with Installments (LIVE)
+			 1439-NBG-HPS-WithInstallment - English Page
+			 1438-NBG-HPS-WithInstallment - Greek Page
+			 */
+			 
+			 }
+			 
+			if ($this->nbg_auth== "yes")
+			{//pre-authorize
+			$method="pre";
+			}
+			else
+			{//authorize
+			$method="auth";
+			}
 			
 			//make XML
 			
@@ -218,7 +247,7 @@ function woocommerce_nbg_init() {
             
 			$transaction = $xml->addChild('Transaction');	
 				$TxnDetails=$transaction->addChild('TxnDetails');
-					$TxnDetails->addChild('merchantreference',$order_id);
+					$TxnDetails->addChild('merchantreference',$merchantreference);
 					$TxnDetails->addChild('capturemethod','ecomm');	
 					$amount = $TxnDetails->addChild('amount',$order->get_total());	
 					$amount->addAttribute('currency','EUR');
@@ -234,25 +263,21 @@ function woocommerce_nbg_init() {
 					
 				$HpsTxn =$transaction->addChild('HpsTxn');
 					$HpsTxn->addChild('method', 'setup_full');
-					$return_url_str= get_site_url()."?wc-api=WC_NBG_gateway".htmlspecialchars('&')."nbg=success&amp;MerchantReference=".$order_id;
+					$return_url_str= get_site_url()."?wc-api=WC_NBG_gateway".htmlspecialchars('&')."nbg=success&amp;MerchantReference=".$merchantreference;
 					$HpsTxn->addChild('return_url',$return_url_str);
 					$HpsTxn->addChild('expiry_url', get_site_url().'?wc-api=WC_NBG_gateway'.htmlspecialchars('&').'nbg=cancel');
-					$HpsTxn->addChild('page_set_id', '19');
+					$HpsTxn->addChild('page_set_id', $page_set_id);
 					$DynamicData = $HpsTxn->addChild('DynamicData');
 						$DynamicData->dyn_data_4=NULL;
 						$DynamicData->dyn_data_4->addCData($this->nbg_installments);
 						
 				$CardTxn=$transaction->addChild('CardTxn');
-					$CardTxn->addChild('method', 'auth');
+					$CardTxn->addChild('method', $method);
 			
-	/*	to delete
-	echo '<pre>';
-			print_r(htmlentities($xml->asXML()));
-			echo '</pre>';
-		*/
+
 		
 	//make XML  curl call 
-	$ch = curl_init ('https://testserver.datacash.com/Transaction');
+	$ch = curl_init ($post_url);
     curl_setopt($ch, CURLOPT_POST,1);
     curl_setopt($ch, CURLOPT_POSTFIELDS, $xml->asXML()); 
     curl_setopt($ch, CURLOPT_HTTPHEADER, Array("Content-Type: text/xml"));
@@ -265,30 +290,9 @@ function woocommerce_nbg_init() {
 	{
           return __('Could not connect to NBG server, please contact the administrator ', 'woocommerce-nbg-payment-gateway') ;
 	} 
-	//to delete
-	/*echo '<pre>';
-			print_r(htmlentities($result));
-	echo '</pre>';
-	$result = "<?xml version='1.0' encoding='UTF-8'?>
-<Response version='2'>
-  <HpsTxn>
-    <hps_url>https://accreditation.datacash.com/hps-nbgs2a_i/</hps_url>
-    <session_id>b2987805-5f69-447a-acbf-54fdba20b6cf</session_id>
-  </HpsTxn>
-  <datacash_reference>3200900010031597</datacash_reference>
-  <merchantreference>NBGTEST000119</merchantreference>
-  <mode>LIVE</mode>
-  <reason>ACCEPTED</reason>
-  <status>1</status>
-  <time>1396418722</time>
-</Response>";*/
-	
+
 	//receive response and parse xml
 	$response = simplexml_load_string($result);
-/*	echo '<pre>';
-	print_r($response);
-	echo '</pre>';
-	*///echo $response->status;
 	
 
 	if ($response->status !=1)
@@ -298,7 +302,7 @@ function woocommerce_nbg_init() {
 	}else
 	{	
 		//If response success save data in DB and redirect
-		$wpdb->insert($wpdb->prefix . 'nbg_transactions', array('reference' => $response->datacash_reference, 'orderid' => $order_id, 'timestamp' => current_time('mysql', 1)));
+		$wpdb->insert($wpdb->prefix . 'nbg_transactions', array('reference' => $response->datacash_reference,'merchantreference'=> $merchantreference , 'orderid' => $order_id, 'timestamp' => current_time('mysql', 1)));
 		
 		
 		$requesturl = $response->HpsTxn->hps_url.'?HPS_SessionID='.$response->HpsTxn->session_id;
@@ -343,7 +347,6 @@ function woocommerce_nbg_init() {
         /**
          * Process the payment and return the result
          * */
-        /**/
         function process_payment($order_id) {
 
             $order = new WC_Order($order_id);
@@ -373,18 +376,17 @@ function woocommerce_nbg_init() {
 			
 		 if (isset($_GET['nbg'])&&($_GET['nbg']==='success')) {	
 			
-			 $orderid= $_GET['MerchantReference'];
+			 $merchantreference= $_GET['MerchantReference'];
 			 
 			 
 			 //query DB
 			 
-				$ttquery = 'SELECT reference
+				$ttquery = 'SELECT *
 				FROM `' . $wpdb->prefix . 'nbg_transactions`
-				WHERE `orderid` = ' . $orderid . '	;';
+				WHERE `merchantreference` like "' . $merchantreference . '"	;';
 				$ref = $wpdb->get_results($ttquery);
-			 
-			 //create XML query 
-			 
+				$orderid=$ref['0']->orderid;
+			
 			$xml = new SimpleXMLExtended('<?xml version="1.0" encoding="utf-8"?><Request version="2"/>');
 				
 				$authentication =   $xml->addChild('Authentication');			
@@ -396,13 +398,18 @@ function woocommerce_nbg_init() {
 						$HistoricTxn->addChild('reference',$ref['0']->reference);
 						$HistoricTxn->addChild('method', 'query');
 						
-				echo '<pre>';
-				print_r(htmlentities($xml->asXML()));
-				echo '</pre>';
-						
+
+			if ($this->mode == "yes") 
+			{//test mode
+			$post_url = 'https://accreditation.datacash.com/Transaction/acq_a';			
+			}
+			 else
+			 { //live mode
+			 $post_url ='https://mars.transaction.datacash.com/Transaction';	
+			 }			
 						
 			 // make CURL request		 
-			$ch = curl_init ('https://testserver.datacash.com/Transaction');
+			$ch = curl_init ($post_url);
 			curl_setopt($ch, CURLOPT_POST,1);
 			curl_setopt($ch, CURLOPT_POSTFIELDS, $xml->asXML()); 
 			curl_setopt($ch, CURLOPT_HTTPHEADER, Array("Content-Type: text/xml"));
@@ -415,34 +422,11 @@ function woocommerce_nbg_init() {
 			{
 				  return __('Could not connect to NBG server, please contact the administrator ', 'woocommerce-nbg-payment-gateway') ;
 			} 
-		/*	 to delete
-			$result = '<?xml version="1.0" encoding="UTF-8"?>
-<Response>
-  <HpsTxn>
-    <AuthAttempts>
-      <Attempt>
-        <datacash_reference>3900900010031589</datacash_reference>
-        <dc_response>1</dc_response>
-        <reason>ACCEPTED</reason>
-      </Attempt>
-    </AuthAttempts><datacash_reference>3900900010031598</datacash_reference> 
-  </HpsTxn>
-  <datacash_reference>3200900010031597</datacash_reference>
-  <information>You have queried a Full-HPS transaction, where the payment was successfully collected</information>
-  <merchantreference>NBGTEST000119</merchantreference>
-  <mode>LIVE</mode>
-  <reason>ACCEPTED</reason>
-  <status>1</status>
-  <time>1396419312</time>
-</Response>';*/
 
 			//Response			
 			$response = simplexml_load_string($result);
 		
-/*	 to delete	echo '<pre>';
-			print_r($response);
-			echo '</pre>';
-	*/		
+
 			$order = new WC_Order($orderid);
 			
 			if ($response->status ==1)
@@ -509,7 +493,7 @@ function woocommerce_nbg_init() {
 
 									// Empty cart
 									WC()->cart->empty_cart();
-								} /**/
+								} 
 				
 				}else
 				{//payment has failed - retry
