@@ -1,0 +1,247 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: National Bank Greece WooCommerce Payment Gateway\n"
+"POT-Creation-Date: 2015-09-23 10:59+0200\n"
+"PO-Revision-Date: 2015-09-23 11:01+0200\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: el_GR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.6.7\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;"
+"esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;_n_noop:1,2;"
+"_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: woocommerce-nbg-payment-gateway.php:37
+msgid ""
+"National Bank Greece Payment Gateway allows you to accept payment through "
+"various channels such as Maestro, Mastercard  and Visa cards On your "
+"Woocommerce Powered Site."
+msgstr ""
+"Η πύλη πληρωμής μέσω  Εθνικής Τράπεζας σας επιτρέπει να λαμβάνεται πληρωμές "
+"μέσω καρτών Maestro, Mastercard  και Visa στο Woocommerce κατάστημα σας,"
+
+#: woocommerce-nbg-payment-gateway.php:82
+msgid "National Bank Greece Gateway"
+msgstr "Εθνική Τράπεζας της Ελλάδας"
+
+#: woocommerce-nbg-payment-gateway.php:83
+msgid ""
+"National Bank Greece Gateway allows you to accept payment through various "
+"channels such as Maestro, Mastercard  and Visa cards."
+msgstr ""
+"Η πύλη πληρωμής μέσω  Εθνικής Τράπεζας σας επιτρέπει να λαμβάνεται πληρωμές "
+"μέσω καρτών Maestro, Mastercard  και Visa."
+
+#: woocommerce-nbg-payment-gateway.php:97
+msgid "Enable/Disable"
+msgstr "Ενεργοποίηση/Απενεργοποίηση"
+
+#: woocommerce-nbg-payment-gateway.php:99
+msgid "Enable National Bank Greece Gateway"
+msgstr "Ενεργοποίηση πύλης πληρωμής Εθνικής Τράπεζας"
+
+#: woocommerce-nbg-payment-gateway.php:100
+msgid "Enable or disable the gateway."
+msgstr "Ενεργοποίηση ή απενεργοποίηση της πύλης πληρωμής."
+
+#: woocommerce-nbg-payment-gateway.php:105
+msgid "Title"
+msgstr "Τίτλος"
+
+#: woocommerce-nbg-payment-gateway.php:107
+msgid "This controls the title which the user sees during checkout."
+msgstr "Ελέγχει το τίτλο που εμφανίζεται στο ταμείο."
+
+#: woocommerce-nbg-payment-gateway.php:109
+msgid "National Bank of Greece Gateway"
+msgstr "Πύλη πληρωμής Εθνικής Τράπεζας "
+
+#: woocommerce-nbg-payment-gateway.php:112
+msgid "Description"
+msgstr "Περιγραφή"
+
+#: woocommerce-nbg-payment-gateway.php:114
+msgid "This controls the description which the user sees during checkout."
+msgstr "Ελέγχει τη περιγραφή που βλέπει ο χρήστης στο ταμείο."
+
+#: woocommerce-nbg-payment-gateway.php:115
+msgid "Pay Via National Bank Greece: Accepts  Mastercard, Visa cards and etc."
+msgstr "Πληρωμή μέσω Εθνικής Τράπεζας: Γίνονται δεκτές Mastercard, Visa κλπ."
+
+#: woocommerce-nbg-payment-gateway.php:117
+msgid "NBG  Username"
+msgstr "Username Εθνικής"
+
+#: woocommerce-nbg-payment-gateway.php:119
+msgid "Enter your NBG Username"
+msgstr "Εισάγεται το Username της Εθνικής Τράπεζας"
+
+#: woocommerce-nbg-payment-gateway.php:123
+msgid "NBG  Password"
+msgstr "Password Εθνικής"
+
+#: woocommerce-nbg-payment-gateway.php:125
+msgid "Enter your NBG Password"
+msgstr "Εισάγεται το Password της Εθνικής Τράπεζας"
+
+#: woocommerce-nbg-payment-gateway.php:129
+msgid "Pre-Authorize"
+msgstr "Προ-Έγκριση"
+
+#: woocommerce-nbg-payment-gateway.php:131
+msgid ""
+"Default payment method is Authorize, enable for Pre-Authorized payments."
+msgstr ""
+"Προεπιλεγμένη μέθοδος είναι η έγκριση, ενεργοποιήστε για προεγκεκριμένες "
+"πληρωμές. Θα πρέπει στη συνέχεια να τις αποδέχεστε από το σύστημα της "
+"Τράπεζας"
+
+#: woocommerce-nbg-payment-gateway.php:133
+msgid "Select between Authorize and Pre-Authorize"
+msgstr "Επιλογή Έγκρισης ή Προ-Έγκρισης συναλλαγής"
+
+#: woocommerce-nbg-payment-gateway.php:135
+msgid "NBG Transaction Description"
+msgstr "Περιγραφή Συναλλαγής προς Εθνική"
+
+#: woocommerce-nbg-payment-gateway.php:137
+msgid "Add a description to the transactions"
+msgstr "Προσθέτει μια περιγραφή στη συναλλαγή"
+
+#: woocommerce-nbg-payment-gateway.php:141
+msgid "Mode"
+msgstr ""
+
+#: woocommerce-nbg-payment-gateway.php:143
+msgid "Enable Test Mode"
+msgstr "Ενεργοποίηση Test Mode"
+
+#: woocommerce-nbg-payment-gateway.php:145
+msgid "This controls  the payment mode as TEST or LIVE."
+msgstr "Ελέγχει αν η πληρωμή βρίσκεται σε TEST ή LIVE περιβάλλον"
+
+#: woocommerce-nbg-payment-gateway.php:148
+msgid "Return Page"
+msgstr "Σελίδα επιστροφής"
+
+#: woocommerce-nbg-payment-gateway.php:151
+msgid "URL of success page"
+msgstr "URL της σελίδας επιτυχίας"
+
+#: woocommerce-nbg-payment-gateway.php:154
+msgid "Max Installments"
+msgstr "Μέγιστες δόσεις"
+
+#: woocommerce-nbg-payment-gateway.php:157
+msgid "1 to 24 Installments,1 for one time payment "
+msgstr "1 μέχρι 24 άτοκες δόσεις, 1 για εφάπαξ πληρωμή"
+
+#: woocommerce-nbg-payment-gateway.php:181
+msgid "Thank you page"
+msgstr "Σελίδα Ευχαριστούμε"
+
+#: woocommerce-nbg-payment-gateway.php:291
+#: woocommerce-nbg-payment-gateway.php:423
+msgid "Could not connect to NBG server, please contact the administrator "
+msgstr ""
+"Δε μπόρεσε να πραγματοποιηθεί σύνδεση με το εξυπηρέτη της Εθνικής Τράπεζας, "
+"παρακαλώ επικοινωνήστε με το διαχειριστή."
+
+#: woocommerce-nbg-payment-gateway.php:301
+msgid "An error occurred, please contact the administrator "
+msgstr "Πραγματοποιήθηκε σφάλμα, παρακαλώ επικοινωνήστε με το διαχειριστή."
+
+#: woocommerce-nbg-payment-gateway.php:313
+msgid ""
+"Thank you for your order. We are now redirecting you to National Bank Greece "
+"to make payment."
+msgstr ""
+"Ευχαριστούμε για τη παραγγελία. Μεταφέρεστε τώρα στη Εθνική Τράπεζα για να "
+"πραγματοποιήσετε τη πληρωμή."
+
+#: woocommerce-nbg-payment-gateway.php:338
+msgid "Pay via NBG"
+msgstr "Πληρωμή μέσω Εθνικής Τράπεζας"
+
+#: woocommerce-nbg-payment-gateway.php:338
+msgid "Cancel order &amp; restore cart"
+msgstr "Ακύρωση παραγγελίας &amp; επαναφορά καλαθιού"
+
+#: woocommerce-nbg-payment-gateway.php:363
+msgid ""
+"Thank you - your order is now pending payment. You should be automatically "
+"redirected to National Bank of Greece to make payment."
+msgstr "Ευχαριστούμε - η παραγγελία σας"
+
+#: woocommerce-nbg-payment-gateway.php:442
+msgid "Payment Via NBG<br />Transaction ID: "
+msgstr "Πληρωμή μέσω Εθνικής Τράπεζς <br/> Transaction ID:"
+
+#: woocommerce-nbg-payment-gateway.php:445
+#: woocommerce-nbg-payment-gateway.php:479
+msgid ""
+"Payment Received.<br />Your order is currently being processed.<br />We will "
+"be shipping your order to you soon.<br />NBG Transaction ID: "
+msgstr ""
+"Λάβαμε πληρωμή.<br />Η παραγγελία σας βρίσκεται υπό επεξεργασία.<br />Θα σας "
+"αποστείλουμε την παραγγελία σας το συντομότερο.<br />NBG Transaction ID: "
+
+#: woocommerce-nbg-payment-gateway.php:453
+#: woocommerce-nbg-payment-gateway.php:481
+msgid ""
+"Thank you for shopping with us.<br />Your transaction was successful, "
+"payment was received.<br />Your order is currently being processed."
+msgstr ""
+"Ευχαριστούμε που μας επιλέξατε.<br /> Η συναλλαγή σας ήταν επιτυχής, η "
+"πληρωμή έχει ληφθεί.<br /> Η παραγγελία σας βρίσκεται υπό επεξεργασία."
+
+#: woocommerce-nbg-payment-gateway.php:460
+msgid "Payment received, your order is now complete."
+msgstr "Λάβαμε την πληρωμή, η παραγγελία σας έχει ολοκληρωθεί."
+
+#: woocommerce-nbg-payment-gateway.php:463
+#: woocommerce-nbg-payment-gateway.php:476
+msgid "Payment Via NBG Payment Gateway<br />Transaction ID: "
+msgstr "Πληρωμή μέσω Εθνικής Τράπεζς <br/> Transaction ID:"
+
+#: woocommerce-nbg-payment-gateway.php:466
+msgid ""
+"Payment Received.<br />Your order is now complete.<br />NBG Transaction ID: "
+msgstr ""
+"Λάβαμε την πληρωμή.<br/>Η παραγγελία σας έχει ολοκληρωθεί.<br/>NBG "
+"Transaction ID: "
+
+#: woocommerce-nbg-payment-gateway.php:468
+msgid ""
+"Thank you for shopping with us.<br />Your transaction was successful, "
+"payment was received.<br />Your order is now complete."
+msgstr ""
+"Ευχαριστούμε που μας επιλέξατε.<br />Η συναλλαγή σας ήταν επιτυχής, η "
+"πληρωμή έχει ληφθεί.<br />Η παραγγελία σας έχει ολοκληρωθεί."
+
+#: woocommerce-nbg-payment-gateway.php:473
+msgid "Payment received, your order is currently being processed."
+msgstr "Λάβαμε τη πληρωμή, η παραγγελία σας βρίσκεται υπό επεξεργασία"
+
+#: woocommerce-nbg-payment-gateway.php:500
+msgid ""
+"Thank you for shopping with us. <br />However, the transaction wasn't "
+"successful, payment wasn't received."
+msgstr ""
+"Ευχαριστούμε που μας επιλέξατε.<br/>Δυστυχώς η συναλλαγή δεν ήταν επιτυχής, "
+"δε λάβαμε την πληρωμή."
+
+#: woocommerce-nbg-payment-gateway.php:519
+msgid ""
+"Thank you for shopping with us. <br />However, an error occurred and the "
+"transaction wasn't successful, payment wasn't received."
+msgstr ""
+"Ευχαριστούμε που μας επιλέξατε.<br/>Δυστυχώς  παρουσιάστηκα σφάλμα και η "
+"συναλλαγή δεν ήταν επιτυχής, δε λάβαμε πληρωμή."

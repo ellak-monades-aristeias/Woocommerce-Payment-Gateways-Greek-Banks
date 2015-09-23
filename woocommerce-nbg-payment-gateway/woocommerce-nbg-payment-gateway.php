@@ -130,7 +130,7 @@ function woocommerce_nbg_init() {
                     'type' => 'checkbox',
                     'label' => __('Default payment method is Authorize, enable for Pre-Authorized payments.', 'woocommerce-nbg-payment-gateway'),
                     'default' => 'yes',
-                    'description' => __('This controls  the payment mode as TEST or LIVE.', 'woocommerce-nbg-payment-gateway')
+                    'description' => __('Select between Authorize and Pre-Authorize', 'woocommerce-nbg-payment-gateway')
                 ),'nbg_description' => array(
                     'title' => __('NBG Transaction Description', 'woocommerce-nbg-payment-gateway'),
                     'type' => 'text',
@@ -476,7 +476,7 @@ function woocommerce_nbg_init() {
 										$order->add_order_note(__('Payment Via NBG Payment Gateway<br />Transaction ID: ', 'woocommerce-nbg-payment-gateway') . $trans_id);
 
 										//Add customer order note
-										$order->add_order_note(__('Payment Received.<br />Your order is currently being processed.<br />We will be shipping your order to you soon.<br />Vivapay Transaction ID: ', 'woocommerce-nbg-payment-gateway') . $trans_id, 1);
+										$order->add_order_note(__('Payment Received.<br />Your order is currently being processed.<br />We will be shipping your order to you soon.<br />NBG Transaction ID: ', 'woocommerce-nbg-payment-gateway') . $trans_id, 1);
 
 										$message = __('Thank you for shopping with us.<br />Your transaction was successful, payment was received.<br />Your order is currently being processed.', 'woocommerce-nbg-payment-gateway');
 										$message_type = 'success';
