@@ -11,7 +11,7 @@ Adds Piraeus Bank paycenter as a payment Gateway for WooCommerce
 
 == Description ==
 Adds Piraeus Bank paycenter as a payment Gateway for WooCommerce. A contract between you and the Bank must be previously signed.
-
+It uses the redirect method, and SSL is not required.
 Source code is available at [Github](htps://github.com/ellak-monades-aristeias/Woocommerce-Payment-Gateways-Greek-Banks)
 
 == Features ==
