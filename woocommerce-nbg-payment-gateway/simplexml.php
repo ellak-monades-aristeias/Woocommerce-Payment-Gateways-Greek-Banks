@@ -1,4 +1,3 @@
-
 <?php
 class SimpleXMLExtended extends SimpleXMLElement
   {
